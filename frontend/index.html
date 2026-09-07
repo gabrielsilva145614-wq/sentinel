@@ -1,0 +1,295 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#07111f">
+  <title>Sentinel 2.1 | Central de Operações</title>
+  <script>
+    if (!localStorage.getItem('sentinel_session_v1')) {
+      window.location.replace('login.html');
+    }
+  </script>
+  <link rel="stylesheet" href="style.css">
+  <script defer src="https://cdn.jsdelivr.net/npm/@vladmandic/face-api/dist/face-api.js"></script>
+</head>
+<body class="dashboard-page">
+  <div class="app-shell">
+    <aside class="sidebar">
+      <a class="sidebar-brand" href="#overview" aria-label="Sentinel 2.1">
+        <span class="brand-symbol" aria-hidden="true">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M12 3 5 6v5c0 4.7 2.7 8.2 7 10 4.3-1.8 7-5.3 7-10V6l-7-3Z"/>
+            <path d="m9.5 12 1.7 1.7 3.6-3.9"/>
+          </svg>
+        </span>
+        <span class="brand-text"><strong>SENTINEL</strong><small>SECURITY 2.1</small></span>
+      </a>
+
+      <div class="nav-caption">OPERAÇÃO</div>
+      <nav class="sidebar-nav" aria-label="Navegação principal">
+        <a class="nav-item active" href="#overview">
+          <span class="nav-icon">◫</span><span>Visão geral</span>
+        </a>
+        <a class="nav-item" href="#monitoramento">
+          <span class="nav-icon">⌖</span><span>Mapa & sensores</span>
+        </a>
+        <a class="nav-item" href="#eventos">
+          <span class="nav-icon">≡</span><span>Eventos</span>
+        </a>
+        <a class="nav-item" href="#assistente">
+          <span class="nav-icon">✦</span><span>Assistente IA</span>
+        </a>
+      </nav>
+
+      <div class="nav-caption">SISTEMA</div>
+      <div class="sidebar-system-card">
+        <div class="system-card-top">
+          <span class="status-dot green"></span>
+          <div><strong>Proteção ativa</strong><small>Monitoramento contínuo</small></div>
+        </div>
+        <div class="system-mini-row"><span>Versão</span><strong>2.1.0</strong></div>
+        <div class="system-mini-row"><span>Modo</span><strong>Residencial</strong></div>
+      </div>
+
+      <button class="sidebar-logout" type="button" onclick="logoutSentinel()">
+        <span>↪</span> Encerrar sessão
+      </button>
+    </aside>
+
+    <section class="workspace">
+      <header class="topbar">
+        <div class="topbar-title">
+          <span class="breadcrumb">Sentinel / Operações</span>
+          <h1>Central de Segurança</h1>
+        </div>
+
+        <div class="topbar-actions">
+          <div class="connection-chip" id="backendChip" title="Estado da conexão com o backend">
+            <span class="connection-indicator" id="backendIndicator"></span>
+            <div><small>BACK-END</small><strong id="backendStatusText">Conectando...</strong></div>
+          </div>
+
+          <div class="operator-profile">
+            <div class="operator-avatar" id="userAvatar">OP</div>
+            <div class="operator-copy">
+              <strong id="userName">Operador</strong>
+              <small id="userRole">Operador</small>
+            </div>
+          </div>
+        </div>
+      </header>
+
+      <main class="dashboard-main" id="overview">
+        <section class="overview-banner">
+          <div>
+            <span class="section-kicker">PAINEL EM TEMPO REAL</span>
+            <h2>Visão geral do perímetro</h2>
+            <p>Monitoramento unificado de acessos, sensores ambientais, câmeras e eventos críticos da residência.</p>
+          </div>
+          <div class="overview-status">
+            <span class="live-pulse"></span>
+            <div><strong>Sistema operacional</strong><small>IA e sensores em monitoramento</small></div>
+          </div>
+        </section>
+
+        <section class="metrics-grid" aria-label="Indicadores principais">
+          <article class="metric-card metric-risk">
+            <div class="metric-header">
+              <span class="metric-icon">R</span>
+              <div><small>RISCO PREDITIVO</small><span>Atualização contínua</span></div>
+            </div>
+            <div class="metric-risk-content">
+              <div class="mini-gauge" id="gaugeCircle">
+                <strong id="riskValue">10%</strong>
+              </div>
+              <div class="metric-value-copy">
+                <strong id="riskLevel">RISCO BAIXO</strong>
+                <span>Condições normais no perímetro</span>
+              </div>
+            </div>
+          </article>
+
+          <article class="metric-card">
+            <div class="metric-header">
+              <span class="metric-icon accent-green">S</span>
+              <div><small>SENSORES</small><span>Estado atual</span></div>
+            </div>
+            <div class="metric-number">4 <span>/ 4</span></div>
+            <div class="metric-footer"><span class="status-dot green"></span> Monitorados</div>
+          </article>
+
+          <article class="metric-card">
+            <div class="metric-header">
+              <span class="metric-icon accent-blue">C</span>
+              <div><small>CÂMERAS</small><span>Fontes disponíveis</span></div>
+            </div>
+            <div class="metric-number">3 <span>feeds</span></div>
+            <div class="metric-footer">Entrada • Sala • Quintal</div>
+          </article>
+
+          <article class="metric-card">
+            <div class="metric-header">
+              <span class="metric-icon accent-violet">E</span>
+              <div><small>EVENTOS NO BACK-END</small><span>Sessão atual</span></div>
+            </div>
+            <div class="metric-number" id="backendEventCount">--</div>
+            <div class="metric-footer" id="backendConnectionLabel">Aguardando conexão</div>
+          </article>
+        </section>
+
+        <section class="main-grid" id="monitoramento">
+          <article class="panel sensor-panel">
+            <div class="panel-heading">
+              <div>
+                <span class="section-kicker">PERÍMETRO</span>
+                <h2>Estado dos sensores</h2>
+              </div>
+              <span class="panel-badge success">Monitorando</span>
+            </div>
+
+            <div class="sensor-list">
+              <div class="sensor-row">
+                <span class="sensor-type-icon">D</span>
+                <div><strong>Porta principal</strong><small>Sensor magnético</small></div>
+                <span id="statusPortaPrincipal" class="status-pill text-green">TRANCADA</span>
+              </div>
+              <div class="sensor-row">
+                <span class="sensor-type-icon">J</span>
+                <div><strong>Janela da sala</strong><small>Sensor de abertura</small></div>
+                <span id="statusJanelaSala" class="status-pill text-green">FECHADA</span>
+              </div>
+              <div class="sensor-row">
+                <span class="sensor-type-icon">F</span>
+                <div><strong>Sensor de fumaça</strong><small>Cozinha</small></div>
+                <span id="statusFumaca" class="status-pill text-green">NORMAL</span>
+              </div>
+              <div class="sensor-row">
+                <span class="sensor-type-icon">G</span>
+                <div><strong>Sensor de gás GLP</strong><small>Cozinha</small></div>
+                <span id="statusGas" class="status-pill text-green">NORMAL</span>
+              </div>
+            </div>
+
+            <div class="last-access-card">
+              <span>ÚLTIMO ACESSO IDENTIFICADO</span>
+              <strong id="lastAccess">Aguardando leitura biométrica...</strong>
+            </div>
+          </article>
+
+          <article class="panel map-panel">
+            <div class="panel-heading">
+              <div>
+                <span class="section-kicker">PLANTA INTERATIVA</span>
+                <h2>Mapa 2D e dispositivos</h2>
+              </div>
+              <span class="panel-helper">Clique nos dispositivos para simular eventos</span>
+            </div>
+
+            <div class="house-map" id="houseMap">
+              <div class="map-grid-lines"></div>
+              <div class="room hallway"><span>CORREDOR</span></div>
+              <div class="room living-room" id="roomLiving"><span>SALA DE ESTAR</span></div>
+              <div class="room bedroom"><span>QUARTO</span></div>
+              <div class="room kitchen" id="roomKitchen"><span>COZINHA</span></div>
+
+              <button class="device-btn camera cam-entrance" onclick="abrirCamera('cam_entrada', 'Entrada Principal')"><span>CAM</span> Entrada</button>
+              <button class="device-btn camera cam-living" onclick="abrirCamera('cam_sala', 'Sala de Estar')"><span>CAM</span> Sala</button>
+              <button class="device-btn camera cam-backyard" onclick="abrirCamera('cam_quintal', 'Quintal')"><span>CAM</span> Quintal</button>
+
+              <button class="device-btn access door-main" id="btnPortaPrincipal" onclick="togglePorta()"><span>ACC</span> Porta (TRANCADA)</button>
+              <button class="device-btn access window-living" id="btnJanelaSala" onclick="toggleJanela()"><span>ACC</span> Janela (FECHADA)</button>
+
+              <button class="device-btn environment sensor-fire" id="btnFireSensor" onclick="toggleIncendio()"><span>ENV</span> Sensor Fumaça</button>
+              <button class="device-btn environment sensor-gas" id="btnGasSensor" onclick="toggleGas()"><span>ENV</span> Sensor Gás GLP</button>
+            </div>
+          </article>
+
+          <div class="right-stack">
+            <article class="panel events-panel" id="eventos">
+              <div class="panel-heading compact">
+                <div>
+                  <span class="section-kicker">AUDITORIA</span>
+                  <h2>Histórico de eventos</h2>
+                </div>
+                <button class="icon-button" type="button" onclick="verificarBackend()" title="Atualizar eventos">↻</button>
+              </div>
+              <div class="log-feed" id="logFeed">
+                <div class="log-item info">
+                  <small>00:00</small>
+                  <span>Sentinel 2.1 online. Conectado à base de operação.</span>
+                </div>
+              </div>
+            </article>
+
+            <article class="panel assistant-panel" id="assistente">
+              <div class="panel-heading compact">
+                <div>
+                  <span class="section-kicker">SENTINEL ASSISTANT</span>
+                  <h2>Assistente operacional</h2>
+                </div>
+                <span class="ai-chip">IA</span>
+              </div>
+
+              <div class="chat-history" id="chatHistory">
+                <div class="chat-msg system-msg">Olá. Sou o Sentinel Assistant. Posso consultar o risco, os sensores ou trancar a porta principal.</div>
+              </div>
+              <div class="chat-input-area">
+                <input type="text" id="chatInput" placeholder="Digite um comando..." onkeypress="verificarEnter(event)">
+                <button onclick="enviarMensagem()" aria-label="Enviar mensagem">Enviar</button>
+              </div>
+            </article>
+          </div>
+        </section>
+
+        <section class="emergency-strip">
+          <div>
+            <span class="section-kicker danger-kicker">RESPOSTA RÁPIDA</span>
+            <h2>Ações de emergência</h2>
+            <p>Use somente para simulação de cenários críticos neste ambiente acadêmico.</p>
+          </div>
+          <div class="emergency-actions">
+            <button class="btn-emergency btn-fire" onclick="discarEmergencia('193 (BOMBEIROS)', 'Incêndio / Vazamento de Gás')"><span>193</span> Acionar Bombeiros</button>
+            <button class="btn-emergency btn-police" onclick="discarEmergencia('190 (POLÍCIA MILITAR)', 'Intruso / Procurado Detectado')"><span>190</span> Acionar Polícia</button>
+          </div>
+        </section>
+      </main>
+    </section>
+  </div>
+
+  <div class="modal-overlay" id="cameraModal">
+    <div class="modal-content camera-modal-content">
+      <div class="modal-header">
+        <div><span class="section-kicker">MONITORAMENTO AO VIVO</span><h3 id="modalTitle">FEED DA WEBCAM</h3></div>
+        <button class="close-btn" onclick="fecharCamera()" aria-label="Fechar câmera">×</button>
+      </div>
+
+      <div class="webcam-viewport">
+        <video id="webcam" autoplay muted playsinline></video>
+        <div class="camera-hud hud-top-left">CAM • LIVE</div>
+        <div class="camera-hud hud-top-right">REC</div>
+        <div class="facial-overlay" id="facialOverlay"><span id="scanStatus">CARREGANDO INTELIGÊNCIA ARTIFICIAL...</span></div>
+      </div>
+
+      <div class="modal-footer">
+        <button class="btn-action green" id="btnCadastrarRosto" onclick="cadastrarBiometria()">Memorizar rosto</button>
+        <button class="btn-action orange" id="btnLigarIA" onclick="iniciarReconhecimento()">Ativar IA</button>
+        <button class="btn-action red" onclick="simularProcuradoPolicia()">Simular procurado</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal-overlay" id="emergencyModal">
+    <div class="modal-content emergency-box">
+      <div class="emergency-symbol">!</div>
+      <h2 id="emergencyTitle">CHAMADA DE EMERGÊNCIA</h2>
+      <p id="emergencyBody">Discando para a central...</p>
+      <div class="call-animation"><span id="emergencyTimer">00:03</span></div>
+      <button class="btn-action red" onclick="cancelarEmergencia()">Cancelar chamada</button>
+    </div>
+  </div>
+
+  <script src="auth.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
