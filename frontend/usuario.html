@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#07111f">
+  <title>Sentinel | Monitoramento</title>
+  <script>
+    if (!localStorage.getItem('sentinel_session_v1')) window.location.replace('login.html');
+  </script>
+  <link rel="stylesheet" href="usuario.css">
+</head>
+<body class="user-dashboard-page">
+  <header class="user-topbar">
+    <a class="user-brand" href="#cameras" aria-label="Sentinel">
+      <span class="brand-shield">✓</span>
+      <span><strong>SENTINEL</strong><small>Monitoramento residencial</small></span>
+    </a>
+    <nav class="simple-nav" aria-label="Navegação">
+      <a href="#cameras">Câmeras</a><a href="#mapa">Mapa 2D</a><a href="#historico">Histórico</a><a href="#assistente">Assistente</a>
+    </nav>
+    <div class="user-actions">
+      <div class="system-online"><i></i><span>Sistema online</span></div>
+      <div class="user-profile"><span id="userAvatar">US</span><div><strong id="userName">Usuário</strong><small>Usuário</small></div></div>
+      <button class="logout-btn" onclick="logoutSentinel()" title="Encerrar sessão">Sair</button>
+    </div>
+  </header>
+
+  <main class="user-main">
+    <section class="welcome-row">
+      <div><p class="eyebrow">MINHA SEGURANÇA</p><h1>Olá, <span id="welcomeName">usuário</span>.</h1><p>Acompanhe suas câmeras e os eventos da residência em um só lugar.</p></div>
+      <div class="summary-pill"><span class="pulse"></span><div><strong>3 câmeras conectadas</strong><small>Nenhum alerta no momento</small></div></div>
+    </section>
+
+    <section id="cameras" class="section-block">
+      <div class="section-title"><div><p class="eyebrow">AO VIVO</p><h2>Suas câmeras</h2></div><span class="soft-label">3 de 3 online</span></div>
+      <div class="camera-grid">
+        <button class="camera-card" onclick="abrirCameraUsuario('Entrada principal')">
+          <div class="camera-preview entrance"><span class="live-tag"><i></i> AO VIVO</span><span class="camera-glyph">⌾</span><span class="camera-time js-clock">--:--</span></div>
+          <div class="camera-info"><div><strong>Entrada principal</strong><small>Área externa</small></div><span>Ver câmera ›</span></div>
+        </button>
+        <button class="camera-card" onclick="abrirCameraUsuario('Sala de estar')">
+          <div class="camera-preview living"><span class="live-tag"><i></i> AO VIVO</span><span class="camera-glyph">⌾</span><span class="camera-time js-clock">--:--</span></div>
+          <div class="camera-info"><div><strong>Sala de estar</strong><small>Área interna</small></div><span>Ver câmera ›</span></div>
+        </button>
+        <button class="camera-card" onclick="abrirCameraUsuario('Quintal')">
+          <div class="camera-preview backyard"><span class="live-tag"><i></i> AO VIVO</span><span class="camera-glyph">⌾</span><span class="camera-time js-clock">--:--</span></div>
+          <div class="camera-info"><div><strong>Quintal</strong><small>Área externa</small></div><span>Ver câmera ›</span></div>
+        </button>
+      </div>
+    </section>
+
+    <section class="content-grid">
+      <article id="mapa" class="card map-card">
+        <div class="section-title compact"><div><p class="eyebrow">LOCALIZAÇÃO</p><h2>Mapa 2D</h2></div><span class="soft-label">Clique em uma câmera</span></div>
+        <div class="simple-house-map">
+          <div class="room room-hall"><span>CORREDOR</span></div>
+          <div class="room room-living"><span>SALA DE ESTAR</span></div>
+          <div class="room room-bed"><span>QUARTO</span></div>
+          <div class="room room-kitchen"><span>COZINHA</span></div>
+          <button class="map-camera cam-a" onclick="abrirCameraUsuario('Entrada principal')" title="Entrada principal"><b>●</b><span>Entrada</span></button>
+          <button class="map-camera cam-b" onclick="abrirCameraUsuario('Sala de estar')" title="Sala de estar"><b>●</b><span>Sala</span></button>
+          <button class="map-camera cam-c" onclick="abrirCameraUsuario('Quintal')" title="Quintal"><b>●</b><span>Quintal</span></button>
+        </div>
+        <div class="map-legend"><span><i class="online-dot"></i>Câmera online</span><span>Selecione um ponto para visualizar</span></div>
+      </article>
+
+      <article id="historico" class="card history-card">
+        <div class="section-title compact"><div><p class="eyebrow">ATIVIDADE</p><h2>Histórico</h2></div><select id="historyFilter" onchange="filtrarHistorico()"><option value="all">Todos</option><option value="camera">Câmeras</option><option value="system">Sistema</option></select></div>
+        <div class="history-list" id="historyList">
+          <div class="history-item" data-type="camera"><span class="history-icon">◉</span><div><strong>Movimento detectado</strong><small>Entrada principal</small></div><time>Hoje, 14:18</time></div>
+          <div class="history-item" data-type="camera"><span class="history-icon">◉</span><div><strong>Câmera visualizada</strong><small>Sala de estar</small></div><time>Hoje, 12:42</time></div>
+          <div class="history-item" data-type="system"><span class="history-icon check">✓</span><div><strong>Sistema conectado</strong><small>Monitoramento iniciado normalmente</small></div><time>Hoje, 08:00</time></div>
+          <div class="history-item" data-type="camera"><span class="history-icon">◉</span><div><strong>Movimento detectado</strong><small>Quintal</small></div><time>Ontem, 22:31</time></div>
+        </div>
+      </article>
+    </section>
+
+    <section id="assistente" class="card assistant-card">
+      <div class="assistant-head"><div class="assistant-logo">✦</div><div><p class="eyebrow">SENTINEL ASSISTANT</p><h2>Assistente operacional</h2><p>Pergunte sobre câmeras, histórico ou como usar o mapa.</p></div><span class="assistant-status"><i></i> Disponível</span></div>
+      <div class="chat-box" id="chatHistory"><div class="bot-message">Olá! Posso ajudar você a localizar uma câmera, consultar os últimos eventos ou entender o mapa da residência.</div></div>
+      <div class="quick-actions"><button onclick="perguntaRapida('Quais câmeras estão online?')">Câmeras online</button><button onclick="perguntaRapida('Qual foi o último evento?')">Último evento</button><button onclick="perguntaRapida('Como uso o mapa?')">Como usar o mapa?</button></div>
+      <form class="chat-form" onsubmit="enviarMensagemUsuario(event)"><input id="chatInput" autocomplete="off" placeholder="Digite sua pergunta..."><button type="submit">Enviar</button></form>
+    </section>
+  </main>
+
+  <div class="camera-modal" id="userCameraModal" aria-hidden="true">
+    <div class="camera-modal-box">
+      <div class="modal-head"><div><p class="eyebrow">TRANSMISSÃO AO VIVO</p><h2 id="cameraModalTitle">Câmera</h2></div><button onclick="fecharCameraUsuario()" aria-label="Fechar">×</button></div>
+      <div class="video-area"><video id="userWebcam" autoplay muted playsinline></video><div id="cameraFallback" class="camera-fallback"><span>⌾</span><strong>Prévia da câmera</strong><small>Permita o acesso à webcam para testar a transmissão ao vivo.</small></div><span class="live-tag modal-live"><i></i> AO VIVO</span></div>
+      <div class="modal-note"><span><i class="online-dot"></i>Conexão segura</span><small>Demonstração acadêmica: a webcam do dispositivo simula o feed selecionado.</small></div>
+    </div>
+  </div>
+
+  <script src="auth.js"></script>
+  <script src="usuario.js"></script>
+</body>
+</html>

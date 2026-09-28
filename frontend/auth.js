@@ -1,6 +1,10 @@
 const SENTINEL_USERS_KEY = 'sentinel_users_v1';
 const SENTINEL_SESSION_KEY = 'sentinel_session_v1';
 
+function getDashboardForRole(role) {
+  return String(role || '').toLowerCase() === 'administrador' ? 'index.html' : 'usuario.html';
+}
+
 function getUsers() {
   try {
     return JSON.parse(localStorage.getItem(SENTINEL_USERS_KEY)) || [];
@@ -39,14 +43,22 @@ function logoutSentinel() {
 
 function seedDemoUser() {
   const users = getUsers();
-  if (users.some(user => user.email === 'operador@sentinel.com')) return;
-
-  users.push({
-    name: 'Operador Sentinel',
-    email: 'operador@sentinel.com',
-    password: 'Sentinel123',
-    role: 'Administrador'
-  });
+  if (!users.some(user => user.email === 'operador@sentinel.com')) {
+    users.push({
+      name: 'Operador Sentinel',
+      email: 'operador@sentinel.com',
+      password: 'Sentinel123',
+      role: 'Administrador'
+    });
+  }
+  if (!users.some(user => user.email === 'usuario@sentinel.com')) {
+    users.push({
+      name: 'Usuário Sentinel',
+      email: 'usuario@sentinel.com',
+      password: 'Sentinel123',
+      role: 'Usuário'
+    });
+  }
   saveUsers(users);
 }
 
@@ -106,7 +118,7 @@ function handleLogin() {
     setSession(user);
 
     setTimeout(() => {
-      window.location.href = 'index.html';
+      window.location.href = getDashboardForRole(user.role);
     }, 350);
   });
 
@@ -190,7 +202,7 @@ function handleRegister() {
     setFeedback(feedback, 'Conta criada com sucesso. Redirecionando...', 'success');
 
     setTimeout(() => {
-      window.location.href = 'index.html';
+      window.location.href = getDashboardForRole(newUser.role);
     }, 500);
   });
 }
@@ -227,7 +239,7 @@ document.addEventListener('DOMContentLoaded', () => {
   const session = getSession();
   if ((document.body.classList.contains('auth-page')) && session) {
     const params = new URLSearchParams(window.location.search);
-    if (params.get('force') !== '1') window.location.href = 'index.html';
+    if (params.get('force') !== '1') window.location.href = getDashboardForRole(session.role);
   }
 
   handleLogin();
